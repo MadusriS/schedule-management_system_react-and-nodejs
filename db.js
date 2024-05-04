@@ -184,12 +184,10 @@ const formatToAMPM = (time) => {
 const convertTo24HourFormat = (time) => {
     return new Date(`1970-01-01 ${time}`).toLocaleTimeString('en-US', { hour12: false });
 };
-
-// Function to delete a schedule
 const deleteSchedule = (day, taskname, start_time, callback) => {
-    console.log(start_time);
-    let std_time=convertTo24HourFormat(start_time);
-    console.log(std_time);
+    console.log(`Original start_time input: ${start_time}`);
+    let std_time = convertTo24HourFormat(start_time);
+    console.log(`Converted start_time: ${std_time}`);
 
     const DAYS_MAPPING = {
         'Monday': 0b0000001,
@@ -201,19 +199,31 @@ const deleteSchedule = (day, taskname, start_time, callback) => {
         'Sunday': 0b1000000
     };
     const binaryDay = DAYS_MAPPING[day];
+    console.log(`Day binary for ${day}: ${binaryDay}`);
+
     const deleteQuery = `UPDATE schedules 
-                         SET days = days & ~${binaryDay} 
-                         WHERE name = ${taskname}  
-                         AND start_time = ${std_time} `;
-    db.query(deleteQuery, [taskname, std_time], (err, result) => {
-        if (err) return callback(err);
-        if (result.affectedRows>0) {
+                         SET days = days & ~${binaryDay}
+                         WHERE name = '${taskname}'
+                        
+                         AND start_time = '${std_time}'`;
+
+    console.log(`Executing query: ${deleteQuery} with taskname=${taskname}, binaryDay=${binaryDay}, std_time=${std_time}`);
+
+    db.query(deleteQuery, (err, result) => {
+        if (err) {
+            console.error('SQL Error:', err);
+            return callback(err);
+        }
+        console.log('Affected rows:', result.affectedRows);
+        if (result.changedRows>0) {
             callback(null, { message: 'Schedule successfully deleted' });
         } else {
             callback(null, { message: 'Schedule not found' });
         }
+        
     });
 };
+
 
 module.exports = {
     insertSchedule,

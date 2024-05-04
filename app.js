@@ -13,10 +13,15 @@ app.post('/schedule', (req, res) => {
         res.send({ message: 'Schedule created successfully' });
     });
 });
+const convertTo24HourFormat = (time) => {
+    return new Date(`1970-01-01 ${time}`).toLocaleTimeString('en-US', { hour12: false });
+};
 
 app.delete('/schedule', (req, res) => {
+    
     const { day, taskname, start_time } = req.body;
-    db.deleteSchedule(day, taskname, start_time, (err, result) => {
+    let std_time = convertTo24HourFormat(start_time);
+    db.deleteSchedule(day, taskname, std_time, (err, result) => {
         if (err) return res.status(500).send({ error: err.message });
         if (result.affectedRows > 0) {
             res.send({ message: 'Schedule successfully deleted' });
