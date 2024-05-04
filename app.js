@@ -23,10 +23,11 @@ app.delete('/schedule', (req, res) => {
     let std_time = convertTo24HourFormat(start_time);
     db.deleteSchedule(day, taskname, std_time, (err, result) => {
         if (err) return res.status(500).send({ error: err.message });
-        if (result.affectedRows > 0) {
-            res.send({ message: 'Schedule successfully deleted' });
+        console.log('result in app.js:',result);
+        if (result.changedRows > 0) {
+            res.send({ message: 'Schedule successfully deleted(app.js)' });
         } else {
-            res.status(404).send({ message: 'Schedule not found' });
+            res.status(404).send({ message: 'Schedule not found(app.js)' });
         }
     });
 });

@@ -214,14 +214,16 @@ const deleteSchedule = (day, taskname, start_time, callback) => {
             console.error('SQL Error:', err);
             return callback(err);
         }
+        console.log('Query Result:', result); // Add this line to log the result object
         console.log('Affected rows:', result.affectedRows);
-        if (result.changedRows>0) {
-            callback(null, { message: 'Schedule successfully deleted' });
+        console.log('Changed rows:', result.changedRows); // Add this line to log the number of changed rows
+        if (result.changedRows > 0 || result.affectedRows > 0) { // Modify condition if necessary
+            callback(null,result);
         } else {
-            callback(null, { message: 'Schedule not found' });
+            callback(null, result);
         }
-        
     });
+    
 };
 
 
