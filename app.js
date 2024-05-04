@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const db = require('./db');
 
 const app = express();
-n=
 app.use(bodyParser.json());
 
 // API endpoints
@@ -27,10 +26,11 @@ app.delete('/schedule', (req, res) => {
     });
 });
 
+// API endpoint for GET /schedules
 app.get('/schedules', (req, res) => {
-    db.getAllSchedules((err, result) => {
+    db.getAllSchedules((err, formattedSchedules) => {
         if (err) return res.status(500).send({ error: err.message });
-        res.json(result);
+        res.send(formattedSchedules);
     });
 });
 

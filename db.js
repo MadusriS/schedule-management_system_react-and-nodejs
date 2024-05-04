@@ -1,3 +1,5 @@
+// db.js
+
 const mysql = require('mysql');
 
 // Configure MySQL connection
@@ -30,6 +32,82 @@ const createTable = () => {
 };
 createTable();
 
+// Function to convert binary representation of days to an array of days
+const convertBinaryToDays = (binary) => {
+    const DAYS_MAPPING = {
+        0b0000001: 'Monday',
+        0b0000010: 'Tuesday',
+        0b0000100: 'Wednesday',
+        0b0001000: 'Thursday',
+        0b0010000: 'Friday',
+        0b0100000: 'Saturday',
+        0b1000000: 'Sunday'
+    };
+    const days = [];
+    Object.keys(DAYS_MAPPING).forEach(key => {
+        if (binary & parseInt(key, 2)) {
+            days.push(DAYS_MAPPING[key]);
+        }
+    });
+    return days;
+};
+
+// Function to check for overlapping schedules
+const checkForOverlap = (newStartTime, newEndTime, existingSchedules) => {
+    for (const schedule of existingSchedules) {
+        const startTime = new Date(`1970-01-01 ${schedule.start_time}`);
+        const endTime = new Date(`1970-01-01 ${schedule.end_time}`);
+
+        // Case 1: New schedule starts during an existing schedule
+        if (newStartTime >= startTime && newStartTime < endTime) {
+            return true; // Overlap found
+        }
+
+        // Case 2: New schedule ends during an existing schedule
+        if (newEndTime > startTime && newEndTime <= endTime) {
+            return true; // Overlap found
+        }
+
+        // Case 3: New schedule completely overlaps an existing schedule
+        if (newStartTime <= startTime && newEndTime >= endTime) {
+            return true; // Overlap found
+        }
+    }
+    return false; // No overlap
+};
+
+
+// Function to insert a new schedule
+// Function to insert a new schedule
+const insertSchedule = (name, days, start_time, end_time, callback) => {
+    const daysBinary = convertDaysToBinary(days);
+    const startTime24 = convertTo24HourFormat(start_time);
+    const endTime24 = convertTo24HourFormat(end_time);
+
+    // Check for overlapping schedules in the database
+    const checkOverlapQuery = `SELECT * FROM schedules WHERE 
+                                days & ? > 0 AND
+                                ((start_time < ? AND end_time > ?) OR
+                                (start_time < ? AND end_time > ?) OR
+                                (start_time >= ? AND end_time <= ?))`;
+    db.query(checkOverlapQuery, [daysBinary, startTime24, startTime24, endTime24, endTime24, startTime24, endTime24], (err, overlappingSchedules) => {
+        if (err) return callback(err);
+
+        if (overlappingSchedules.length > 0) {
+            return callback(new Error('Overlap detected. Please choose a different time slot.'));
+        }
+
+        const insertQuery = `INSERT INTO schedules (name, days, start_time, end_time)
+                             VALUES (?, ?, ?, ?)`;
+        db.query(insertQuery, [name, daysBinary, startTime24, endTime24], (err, result) => {
+            if (err) return callback(err);
+            callback(null, result);
+        });
+    });
+};
+
+
+// Function to convert days to binary
 // Function to convert days to binary
 const convertDaysToBinary = (days) => {
     const DAYS_MAPPING = {
@@ -49,19 +127,70 @@ const convertDaysToBinary = (days) => {
     return binary;
 };
 
-// Function to insert a new schedule
-const insertSchedule = (name, days, start_time, end_time, callback) => {
-    const daysBinary = convertDaysToBinary(days);
-    const insertQuery = `INSERT INTO schedules (name, days, start_time, end_time)
-                         VALUES (?, ?, ?, ?)`;
-    db.query(insertQuery, [name, daysBinary, start_time, end_time], (err, result) => {
+
+
+const getAllSchedules = (callback) => {
+    const getQuery = `SELECT name, days, TIME_FORMAT(start_time, '%h:%i %p') AS start_time, TIME_FORMAT(end_time, '%h:%i %p') AS end_time FROM schedules`;
+    db.query(getQuery, (err, results) => {
         if (err) return callback(err);
-        callback(null, result);
+
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        let formattedSchedules = daysOfWeek.map(day => ({ day, schedules: [] }));
+
+        results.forEach(schedule => {
+            daysOfWeek.forEach((day, index) => {
+                if (schedule.days & (1 << index)) { // Bitwise AND to check if the schedule applies to this day
+                    const timeRange = `${schedule.start_time} - ${schedule.end_time}`;
+                    formattedSchedules[index].schedules.push({
+                        name: schedule.name,
+                        timeRange: timeRange,
+                        rawStartTime: schedule.start_time // Keep the original start time for sorting purposes
+                    });
+                }
+            });
+        });
+
+        // Sort schedules for each day based on start time
+        formattedSchedules.forEach(daySchedule => {
+            daySchedule.schedules.sort((a, b) => {
+                return a.rawStartTime.localeCompare(b.rawStartTime);
+            });
+        });
+
+        const formattedOutput = formattedSchedules
+            .filter(day => day.schedules.length > 0)
+            .map(day => `${day.day} - ${day.schedules.map(sch => `${sch.name} (${sch.timeRange})`).join(', ')}`)
+            .join('\n');
+
+        callback(null, formattedOutput);
     });
+};
+
+
+
+
+
+
+
+
+
+
+// Function to convert time to AM/PM format
+const formatToAMPM = (time) => {
+    return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+};
+
+// Function to convert time to 24-hour format
+const convertTo24HourFormat = (time) => {
+    return new Date(`1970-01-01 ${time}`).toLocaleTimeString('en-US', { hour12: false });
 };
 
 // Function to delete a schedule
 const deleteSchedule = (day, taskname, start_time, callback) => {
+    console.log(start_time);
+    let std_time=convertTo24HourFormat(start_time);
+    console.log(std_time);
+
     const DAYS_MAPPING = {
         'Monday': 0b0000001,
         'Tuesday': 0b0000010,
@@ -72,24 +201,26 @@ const deleteSchedule = (day, taskname, start_time, callback) => {
         'Sunday': 0b1000000
     };
     const binaryDay = DAYS_MAPPING[day];
-    const deleteQuery = `DELETE FROM schedules WHERE name = ? AND start_time = ? AND days & ? != 0`;
-    db.query(deleteQuery, [taskname, start_time, binaryDay], (err, result) => {
+    const deleteQuery = `UPDATE schedules 
+                         SET days = days & ~${binaryDay} 
+                         WHERE name = ${taskname}  
+                         AND start_time = ${std_time} `;
+    db.query(deleteQuery, [taskname, std_time], (err, result) => {
         if (err) return callback(err);
-        callback(null, result);
-    });
-};
-
-// Function to retrieve all schedules
-const getAllSchedules = (callback) => {
-    const getQuery = `SELECT * FROM schedules`;
-    db.query(getQuery, (err, result) => {
-        if (err) return callback(err);
-        callback(null, result);
+        if (result.affectedRows>0) {
+            callback(null, { message: 'Schedule successfully deleted' });
+        } else {
+            callback(null, { message: 'Schedule not found' });
+        }
     });
 };
 
 module.exports = {
     insertSchedule,
-    deleteSchedule,
-    getAllSchedules
+    getAllSchedules,
+    deleteSchedule
 };
+
+
+
+
