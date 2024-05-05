@@ -32,6 +32,13 @@ const createTable = () => {
 };
 createTable();
 
+const query = (sql, params, callback) => {
+    db.query(sql, params, (err, result) => {
+        if (err) return callback(err);
+        callback(null, result);
+    });
+};
+
 // Function to convert binary representation of days to an array of days
 const convertBinaryToDays = (binary) => {
     const DAYS_MAPPING = {
@@ -226,8 +233,8 @@ const deleteSchedule = (day, taskname, start_time, callback) => {
     
 };
 
-
 module.exports = {
+    query,     
     insertSchedule,
     getAllSchedules,
     deleteSchedule
