@@ -1,20 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./db');
-const authval=require('./middlewares/authval');
-const jwtval= require('./middlewares/jwtval');
+const authval = require('./middlewares/authval');
+const jwtval = require('./middlewares/jwtval');
 const app = express();
 app.use(bodyParser.json());
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const jwtSecretKey = 'your_secret_key_here';
 
 // API endpoints
 // Assuming you have a user table in your database with columns: id, email, password, and name
 
 app.post('/register', (req, res) => {
     const { email, password, name } = req.body;
-    
+
     // Check if the email already exists in the database
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) {
@@ -56,27 +56,34 @@ app.post('/login', (req, res) => {
         }
 
         if (results.length === 0) {
-            return res.status(401).json({ error: 'Email or password incorrect' });
+            return res.status(401).json({ error: 'Email or password is incorrect' });
         }
 
         const user = results[0];
 
+        // Log hashed password from the database and password input from request
+        console.log('Hashed password from database:', user.password);
+        console.log('Password input from request:', password);
+
         // Compare the provided password with the hashed password from the database
+
+        
         bcrypt.compare(password, user.password, (err, result) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
 
             if (!result) {
-                return res.status(401).json({ error: 'Email or password incorrect' });
+                return res.status(401).json({ error: 'Email or password are incorrect' });
             }
 
             // Generate a JWT token
-            const token = jwt.sign({ email: user.email, userId: user.id }, jwtPassword, { expiresIn: '1h' });
+            const token = jwt.sign({ email: user.email, userId: user.id }, jwtSecretKey, { expiresIn: '1h' });
             res.status(200).json({ message: 'Login successful', token: token });
         });
     });
 });
+
 
 
 // API endpoints
@@ -92,12 +99,12 @@ const convertTo24HourFormat = (time) => {
 };
 
 app.delete('/schedule', (req, res) => {
-    
+
     const { day, taskname, start_time } = req.body;
     let std_time = convertTo24HourFormat(start_time);
     db.deleteSchedule(day, taskname, std_time, (err, result) => {
         if (err) return res.status(500).send({ error: err.message });
-        console.log('result in app.js:',result);
+        console.log('result in app.js:', result);
         if (result.changedRows > 0) {
             res.send({ message: 'Schedule successfully deleted(app.js)' });
         } else {

@@ -15,7 +15,7 @@ authRouter.get("/signup", (req, res) => {
 
 authRouter.post("/signup", emailFormatChecker, passwordFormatChecker, nameNullChecker, async (req, res) => {
     const email = req.headers['email'].trim().toLowerCase();
-    let searchUserlQuery = "SELECT * FROM admins WHERE Email = ?";
+    let searchUserlQuery = "SELECT * FROM users WHERE Email = ?";
     const [result] = await pool.query(searchUserlQuery, [email]);
     if (result.length != 0) {
         res.json({
@@ -26,7 +26,7 @@ authRouter.post("/signup", emailFormatChecker, passwordFormatChecker, nameNullCh
         const password = req.headers['password'].trim();
 
         const bcryptPassword = await bcrypt.hash(password, 10);
-        let insertUserQuery = "INSERT INTO admins (Fullname, Email, password, created_at, updated_at) VALUES (?, ?, ?, now(), now())";
+        let insertUserQuery = "INSERT INTO users (Fullname, Email, password, created_at, updated_at) VALUES (?, ?, ?, now(), now())";
         await pool.query(insertUserQuery, [username, email, bcryptPassword]);
         const token = jwt.sign({ email }, jwtPassword, { "expiresIn": "5h" });
         res.status(202).json({
@@ -45,7 +45,7 @@ authRouter.get("/login", (req, res) => {
 
 authRouter.post("/login", emailFormatChecker, async (req, res) => {
     const email = req.headers['email'].trim().toLowerCase();
-    let searchUserQuery = "SELECT password FROM admins WHERE Email = ?";
+    let searchUserQuery = "SELECT password FROM users WHERE Email = ?";
     const [result] = await pool.query(searchUserQuery, [email]);
     if (result.length != 0) {
         const password = req.headers['password'].trim();
