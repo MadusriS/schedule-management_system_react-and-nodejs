@@ -1,3 +1,3 @@
 module.exports = {
-    "jwtPassword" : "ScheduleManagementSystem"
+    "jwtPassword" : "your_secret_key_here"
 }
