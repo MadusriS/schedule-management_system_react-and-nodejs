@@ -73,7 +73,18 @@ const deleteSchedule = async (user_id, day, taskname, start_time) => {
         };
         const binaryDay = DAYS_MAPPING[day];
 
-      
+        // Find the schedule to update
+        const schedule = await Schedule.findOne({
+            where: {
+                user_id: user_id,
+                name: taskname,
+                start_time: std_time
+            }
+        });
+
+        if (!schedule) {
+            return { message: 'No schedule found for deletion' };
+        }
 
         // Update the schedules where days match and set days to the bitwise AND result
         await Schedule.update(

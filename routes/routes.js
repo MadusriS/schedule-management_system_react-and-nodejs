@@ -5,7 +5,6 @@ const { User, Schedule } = require('../models'); // Import your Sequelize models
 const authenticateUser = require('../middleware/authMiddleware');
 const cont = require('../controllers/schedule_controller');
 const Sequelize = require('sequelize');
-
 const router = express.Router();
 const jwtSecretKey = 'your_secret_key_here';
 
@@ -17,9 +16,15 @@ router.post('/register', async (req, res) => {
         await User.create({ email, password: hashedPassword, name });
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            // Error indicates that the email is already registered
+            res.status(400).json({ error: 'User already registered' });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
+
 
 // Login User
 router.post('/login', async (req, res) => {
