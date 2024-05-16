@@ -11,7 +11,7 @@ const AddSchedule = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const newSchedule = { name, days, start_time: startTime, end_time: endTime };
-    axios.post('http://localhost:3001/schedules', newSchedule)
+    axios.post('http://localhost:3001/schedule', newSchedule)
       .then(response => {
         setError('');
         alert('Schedule added successfully');

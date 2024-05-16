@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-//import { useNavigate } from 'react-router-dom';
+//import Protectedroute from './ProtectedRouteComponent';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    //const history = useNavigate();
+    const history = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,8 +20,10 @@ const Login = () => {
             });
             const data = await response.json();
             if (response.ok) {
+                alert(data.message);
                 localStorage.setItem('token', data.token);
-                //history.push('/register');
+                
+                history.push('/register');
             } else {
                 alert(data.error);
             }

@@ -11,7 +11,7 @@ const Registration = () => {
         e.preventDefault();
         // Send registration request to backend
         try {
-            const response = await fetch('http://localhost:3001/login', {
+            const response = await fetch('http://localhost:3001/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
