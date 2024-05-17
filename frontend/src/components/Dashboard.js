@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const [schedules, setSchedules] = useState([]); // Initialize as an empty array
+    const [schedules, setSchedules] = useState([]);
     const [selectedDay, setSelectedDay] = useState('');
+    const navigate = useNavigate();
 
     const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -17,24 +18,53 @@ const Dashboard = () => {
                 },
             });
 
-            const responseData = await response.text();
-            console.log('Raw Response:', responseData);
-            //const cleanedResponse = responseData.replace(/^"|"$/g, '');
+            const responseData = await response.json();
+            console.log('Parsed Schedules:', responseData);
 
-            // Split the response string into an array of strings by line breaks
-            const schedulesArray = responseData.replace(/^"|"$/g, '').split(',').map(schedule => schedule.trim()).filter(schedule => schedule.length > 0);
-            console.log('Parsed Schedules:', schedulesArray);
-
-            setSchedules(schedulesArray);
+            setSchedules(responseData);
         } catch (error) {
             console.error('Error:', error);
-            setSchedules([]); // Set to empty array on error
+            setSchedules([]);
         }
     };
 
     const handleDayClick = (day) => {
         setSelectedDay(day);
         fetchSchedules(day);
+    };
+
+    const handleDeleteClick = async (schedule) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3001/schedule', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    day: selectedDay,
+                    taskname: schedule.name,
+                    start_time: schedule.start_time
+                })
+            });
+
+            const responseData = await response.json();
+            console.log('Delete Response:', responseData);
+
+            if (response.ok) {
+                fetchSchedules(selectedDay);
+            } else {
+                console.error('Failed to delete schedule:', responseData);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
     };
 
     return (
@@ -47,20 +77,25 @@ const Dashboard = () => {
                     </button>
                 ))}
             </div>
-            <h3>{selectedDay} Schedules</h3>
+            <h3>{selectedDay}</h3>
             <ul>
                 {schedules.length > 0 ? schedules.map((schedule, index) => (
-                    <li key={index}>{schedule}</li>
+                    <li key={index}>
+                        {schedule.name} ({schedule.start_time} - {schedule.end_time})   
+                        <button onClick={() => handleDeleteClick(schedule)}>Delete</button>
+                    </li>
                 )) : (
-                    <li>No schedules available</li>
+                    <li></li>
                 )}
             </ul>
-            {/* Add Schedule button linked to AddSchedule component */}
             <Link to="./AddSchedule">
                 <button>Add Schedule</button>
             </Link>
+            <button onClick={handleLogout}>Logout</button>
         </div>
     );
 };
 
 export default Dashboard;
+
+

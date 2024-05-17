@@ -147,12 +147,15 @@ const getAllSchedules = async (user_id, day) => {
             }
         });
 
-        console.log('Filtered Schedules:', filteredSchedules); // Log the schedules filtered for the specified day
+        // Sort schedules by start time before formatting
+        filteredSchedules.sort((a, b) => a.start_time.localeCompare(b.start_time));
 
-        // Format the filtered schedules as needed
-        const formattedSchedules = formatSchedules(filteredSchedules);
-
-        console.log('Formatted Schedules:', formattedSchedules); // Log the formatted schedules
+        // Format the filtered schedules
+        const formattedSchedules = filteredSchedules.map(schedule => ({
+            name: schedule.name,
+            start_time: formatToAMPM(schedule.start_time),
+            end_time: formatToAMPM(schedule.end_time)
+        }));
 
         return formattedSchedules;
     } catch (error) {
@@ -160,30 +163,11 @@ const getAllSchedules = async (user_id, day) => {
     }
 };
 
-// Function to format schedules
-const formatSchedules = (schedules) => {
-    // No need to map through all days of the week, just format the provided schedules
-    let formattedSchedules = schedules.map(schedule => ({
-        name: schedule.name,
-        timeRange: `${formatToAMPM(schedule.start_time)} - ${formatToAMPM(schedule.end_time)}`,
-        rawStartTime: schedule.start_time,
-        rawEndTime: schedule.end_time
-    }));
-
-    // Sort schedules based on start time
-    formattedSchedules.sort((a, b) => a.rawStartTime.localeCompare(b.rawStartTime));
-
-    // Convert time to AM/PM format after sorting
-    const formattedOutput = formattedSchedules.map(schedule => 
-        `${schedule.name} (${schedule.timeRange})`).join(',');
-
-    return formattedOutput;
-};
-
 // Function to convert time to AM/PM format
 const formatToAMPM = (time) => {
     return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 };
+
 
 // Function to convert days to binary
 const convertDaysToBinary = (days) => {

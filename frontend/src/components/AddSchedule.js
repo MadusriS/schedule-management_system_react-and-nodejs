@@ -101,6 +101,7 @@ const AddSchedule = () => {
             <option value="PM">PM</option>
           </select>
         </div>
+        
         <div>
           <label>End Time: </label>
           <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
@@ -109,6 +110,7 @@ const AddSchedule = () => {
             <option value="PM">PM</option>
           </select>
         </div>
+        
         <button type="submit">Save</button>
         <button type="button" onClick={handleCancel}>Cancel</button>
       </form>

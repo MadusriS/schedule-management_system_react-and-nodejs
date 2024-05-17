@@ -145,7 +145,7 @@ router.get('/schedules/:day', authenticateUser, async (req, res) => {
 
         // Call getAllSchedules function from controller to get schedules
         const formattedSchedules = await cont.getAllSchedules(user_id,day);
-        res.setHeader('Content-Type', 'application/json');
+        //res.setHeader('Content-Type', 'application/json');
         res.json(formattedSchedules); // Send response with the formatted schedules
     } catch (error) {
         res.status(500).json({ error: error.message });
