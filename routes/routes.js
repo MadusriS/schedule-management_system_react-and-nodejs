@@ -70,15 +70,15 @@ router.post('/schedule', authenticateUser, async (req, res) => {
         const capitalizedDays = days.map(day => capitalize(day));
 
         // Define an array of weekdays
-        const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday','Sunday'];
 
         // Check if all provided days are weekdays
         const areAllWeekdays = capitalizedDays.every(day => weekdays.includes(day));
 
         // If all days are weekdays, proceed with schedule insertion; otherwise, return an error message
-        if (!areAllWeekdays) {
+        /*if (!areAllWeekdays) {
             return res.status(400).json({ error: 'Only weekdays (Monday to Friday) are allowed as input' });
-        }
+        }*/
 
         // Call insertSchedule function from controller to insert the schedule
         cont.insertSchedule(user_id, name, capitalizedDays, start_time, end_time, (err, newSchedule) => {
@@ -133,8 +133,10 @@ router.delete('/schedule', authenticateUser, async (req, res) => {
 }*/
 
 
-router.get('/schedules', authenticateUser, async (req, res) => {
+router.get('/schedules/:day', authenticateUser, async (req, res) => {
     const user_id = req.user.user_id; 
+    const day=req.params.day;
+    console.log(day);
 
     try {
         if (!user_id) {
@@ -142,9 +144,9 @@ router.get('/schedules', authenticateUser, async (req, res) => {
         }
 
         // Call getAllSchedules function from controller to get schedules
-        const formattedSchedules = await cont.getAllSchedules(user_id);
-
-        res.send(formattedSchedules); // Send response with the formatted schedules
+        const formattedSchedules = await cont.getAllSchedules(user_id,day);
+        res.setHeader('Content-Type', 'application/json');
+        res.json(formattedSchedules); // Send response with the formatted schedules
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -5,11 +5,14 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const history = useNavigate();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Send login request to backend
+                // Print API URL for verification
+                console.log(process.env.API_URL);
+
         try {
             const response = await fetch('http://localhost:3001/login', { // Update URL here
                 method: 'POST',
@@ -23,7 +26,7 @@ const Login = () => {
                 alert(data.message);
                 localStorage.setItem('token', data.token);
                 
-                history.push('/register');
+                navigate('/dashboard');
             } else {
                 alert(data.error);
             }

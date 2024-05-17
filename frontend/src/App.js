@@ -2,9 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/LoginComponent';
 import Registration from './components/RegistrationForm';
+import Dashboard from './components/Dashboard';
 import Addschedule from './components/AddSchedule';
-//import Dashboard from './Dashboard';
-//import PrivateRoute from './PrivateRoute';
+
+//import PrivateRoute from './components/ProtectedRouteComponent'; // Assuming you have implemented PrivateRoute
 
 const App = () => {
     return (
@@ -12,11 +13,9 @@ const App = () => {
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Registration />} />
-                <Route path="/addschedule" element={<Addschedule />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard/AddSchedule" element={<Addschedule/>} />
 
-                <Route exact path="/login" component={Login} />
-                <Route exact path="/register" component={Registration} />
-       
             </Routes>
         </Router>
     );

@@ -17,22 +17,29 @@ const insertSchedule = async (userId, name, days, start_time, end_time, callback
         const daysBinary = convertDaysToBinary(days);
         const startTime24 = convertTo24HourFormat(start_time);
         const endTime24 = convertTo24HourFormat(end_time);
-        console.log(userId);
 
         // Check for overlapping schedules in the database for the specific user
         const overlappingSchedules = await Schedule.findAll({
-           
             where: {
                 user_id: userId,
-                days: daysBinary,
-                [Sequelize.Op.or]: [
+                [Sequelize.Op.and]: [
+                    Sequelize.literal(`(days & ${daysBinary}) != 0`),
                     {
-                        start_time: { [Sequelize.Op.lt]: endTime24 },
-                        end_time: { [Sequelize.Op.gt]: startTime24 }
-                    },
-                    {
-                        start_time: { [Sequelize.Op.lte]: endTime24 },
-                        end_time: { [Sequelize.Op.gte]: startTime24 }
+                        [Sequelize.Op.or]: [
+                            {
+                                // Existing schedule starts during the new schedule
+                                start_time: { [Sequelize.Op.between]: [startTime24, endTime24] }
+                            },
+                            {
+                                // Existing schedule ends during the new schedule
+                                end_time: { [Sequelize.Op.between]: [startTime24, endTime24] }
+                            },
+                            {
+                                // New schedule completely overlaps the existing schedule
+                                start_time: { [Sequelize.Op.lte]: startTime24 },
+                                end_time: { [Sequelize.Op.gte]: endTime24 }
+                            }
+                        ]
                     }
                 ]
             }
@@ -56,6 +63,7 @@ const insertSchedule = async (userId, name, days, start_time, end_time, callback
         callback(error);
     }
 };
+
 
 
 const deleteSchedule = async (user_id, day, taskname, start_time) => {
@@ -116,16 +124,35 @@ const deleteSchedule = async (user_id, day, taskname, start_time) => {
 
 
 
-const getAllSchedules = async (user_id) => {
+const getAllSchedules = async (user_id, day) => {
     try {
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const index = daysOfWeek.indexOf(day);
+
         // Find all schedules for the user
         const schedules = await Schedule.findAll({
             where: { user_id: user_id },
-            attributes: ['name', 'days', 'start_time', 'end_time']
+            attributes: ['name', 'start_time', 'end_time', 'days']
         });
 
-        // Format the schedules as needed
-        const formattedSchedules = formatSchedules(schedules);
+        console.log('All Schedules:', schedules); // Log all schedules retrieved from the database
+
+        // Filter schedules for the specified day
+        const filteredSchedules = schedules.filter(schedule => {
+            if (index !== -1) {
+                const mask = 1 << index;
+                return (schedule.days & mask) !== 0;
+            } else {
+                return false; // If day is not found in daysOfWeek, return false
+            }
+        });
+
+        console.log('Filtered Schedules:', filteredSchedules); // Log the schedules filtered for the specified day
+
+        // Format the filtered schedules as needed
+        const formattedSchedules = formatSchedules(filteredSchedules);
+
+        console.log('Formatted Schedules:', formattedSchedules); // Log the formatted schedules
 
         return formattedSchedules;
     } catch (error) {
@@ -135,45 +162,27 @@ const getAllSchedules = async (user_id) => {
 
 // Function to format schedules
 const formatSchedules = (schedules) => {
-    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    let formattedSchedules = daysOfWeek.map(day => ({ day, schedules: [] }));
+    // No need to map through all days of the week, just format the provided schedules
+    let formattedSchedules = schedules.map(schedule => ({
+        name: schedule.name,
+        timeRange: `${formatToAMPM(schedule.start_time)} - ${formatToAMPM(schedule.end_time)}`,
+        rawStartTime: schedule.start_time,
+        rawEndTime: schedule.end_time
+    }));
 
-    schedules.forEach(schedule => {
-        daysOfWeek.forEach((day, index) => {
-            if (schedule.days & (1 << index)) { // Bitwise AND to check if the schedule applies to this day
-                const timeRange = `${schedule.start_time} - ${schedule.end_time}`;
-                formattedSchedules[index].schedules.push({
-                    name: schedule.name,
-                    timeRange: timeRange,
-                    rawStartTime: schedule.start_time,
-                    rawEndTime: schedule.end_time
-                });
-            }
-        });
-    });
+    // Sort schedules based on start time
+    formattedSchedules.sort((a, b) => a.rawStartTime.localeCompare(b.rawStartTime));
 
-    // Sort schedules for each day based on start time
-    formattedSchedules.forEach(daySchedule => {
-        daySchedule.schedules.sort((a, b) => {
-            return a.rawStartTime.localeCompare(b.rawStartTime);
-        });
-        // Convert time to AM/PM format after sorting
-        daySchedule.schedules.forEach(schedule => {
-            schedule.timeRange = `${formatToAMPM(schedule.rawStartTime)} - ${formatToAMPM(schedule.rawEndTime)}`;
-        });
-    });
-    const formattedOutput = formattedSchedules
-    .filter(day => day.schedules.length > 0)
-    .map(day => `${day.day} - ${day.schedules.map(sch => `${sch.name} (${sch.timeRange})`).join(', ')}`)
-    .join('\n');
+    // Convert time to AM/PM format after sorting
+    const formattedOutput = formattedSchedules.map(schedule => 
+        `${schedule.name} (${schedule.timeRange})`).join(',');
 
-return formattedOutput;
+    return formattedOutput;
 };
-
 
 // Function to convert time to AM/PM format
 const formatToAMPM = (time) => {
-return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 };
 
 // Function to convert days to binary
@@ -198,6 +207,7 @@ const convertDaysToBinary = (days) => {
 const convertTo24HourFormat = (time) => {
     return new Date(`1970-01-01 ${time}`).toLocaleTimeString('en-US', { hour12: false });
 };
+
 
 
 module.exports = {
