@@ -1,0 +1,91 @@
+/* RegistrationComponent.css */
+
+/* Reset CSS */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Calibri', sans-serif;
+  background-color: #f9f9f9;
+}
+
+/* Use common navbar styles */
+@import './navbar.css';
+
+/* Registration wrapper styles */
+.registration-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px; /* Ensure content is not hidden behind the navbar */
+}
+
+.content-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Left image styles */
+.left-image {
+  max-width: 400px;
+  margin-right: 50px;
+}
+
+/* Registration container styles */
+.registration-container {
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.registration-container h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.registration-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.registration-container input {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.register-button {
+  padding: 10px;
+  background-color: #87CEFA;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.register-button:hover {
+  background-color: #6ca9d8;
+}
+
+/* Navbar logo styles */
+.navbar {
+  width: 100%;
+  padding: 10px 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  display: flex;
+  justify-content: center;
+}
+
+.navbar-logo {
+  max-height: 50px;
+}

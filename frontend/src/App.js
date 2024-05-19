@@ -4,7 +4,7 @@ import Login from './components/LoginComponent';
 import Registration from './components/RegistrationForm';
 import Dashboard from './components/Dashboard';
 import Addschedule from './components/AddSchedule';
-
+import PrivateRoute from './components/ProtectedRouteComponent';
 // import PrivateRoute from './components/ProtectedRouteComponent'; // Assuming you have implemented PrivateRoute
 
 const App = () => {
@@ -14,8 +14,8 @@ const App = () => {
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Registration />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/AddSchedule" element={<Addschedule />} />
+                <Route path="/dashboard" element={<PrivateRoute element={Dashboard} />} />
+                <Route path="/dashboard/AddSchedule" element={<PrivateRoute element={Addschedule }/>} />
             </Routes>
         </Router>
     );

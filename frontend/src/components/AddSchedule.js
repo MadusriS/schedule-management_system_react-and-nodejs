@@ -1,6 +1,7 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import '../styles/AddSchedule.css';
 
 const AddSchedule = () => {
   const [name, setName] = useState('');
@@ -13,7 +14,6 @@ const AddSchedule = () => {
   const navigate = useNavigate();
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
 
   useEffect(() => {
     // Add a request interceptor
@@ -39,13 +39,12 @@ const AddSchedule = () => {
   }, []);
 
   const handleDayClick = (day) => {
-    setDays(prevDays => 
-      prevDays.includes(day) 
-        ? prevDays.filter(d => d !== day) 
+    setDays(prevDays =>
+      prevDays.includes(day)
+        ? prevDays.filter(d => d !== day)
         : [...prevDays, day]
     );
   };
-
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -71,18 +70,21 @@ const AddSchedule = () => {
   };
 
   return (
-    <div>
-      <h2>Add Schedule</h2>
+    <div className="dashboard-container">
+      <div className="navbar">
+        <h2 className="navbar-heading">Add Schedule</h2>
+      </div>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name: </label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+        <div className="form-group">
+          <label>Title</label>
+          <input className="input-box" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
-        <div>
-          <label>Days: </label>
-          <div>
+        <div className="form-group">
+          <label>Active Days</label>
+          <div className="days-container">
             {daysOfWeek.map(day => (
               <button
+                className="day-button"
                 type="button"
                 key={day}
                 onClick={() => handleDayClick(day)}
@@ -93,26 +95,28 @@ const AddSchedule = () => {
             ))}
           </div>
         </div>
-        <div>
-          <label>Start Time: </label>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
-          <select value={startAmPm} onChange={(e) => setStartAmPm(e.target.value)}>
-            <option value="AM">AM</option>
-            <option value="PM">PM</option>
-          </select>
+        <div className="form-group-inline">
+          <div>
+            <label>Start Time:</label>
+            <input className="time-box" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
+            <select value={startAmPm} onChange={(e) => setStartAmPm(e.target.value)}>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
+          <div>
+            <label>End Time:</label>
+            <input className="time-box" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
+            <select value={endAmPm} onChange={(e) => setEndAmPm(e.target.value)}>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
         </div>
-        
-        <div>
-          <label>End Time: </label>
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
-          <select value={endAmPm} onChange={(e) => setEndAmPm(e.target.value)}>
-            <option value="AM">AM</option>
-            <option value="PM">PM</option>
-          </select>
+        <div className="form-buttons">
+          <button className="action-button" type="submit">Save</button>
+          <button className="action-button" type="button" onClick={handleCancel}>Cancel</button>
         </div>
-        
-        <button type="submit">Save</button>
-        <button type="button" onClick={handleCancel}>Cancel</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
@@ -120,4 +124,5 @@ const AddSchedule = () => {
 };
 
 export default AddSchedule;
+
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import '../styles/LoginComponent.css';
+import '../styles/dashboard.css'; // Import the CSS file for Dashboard styles
 
 const Dashboard = () => {
     const [schedules, setSchedules] = useState([]);
@@ -68,34 +70,41 @@ const Dashboard = () => {
     };
 
     return (
-        <div>
-            <h2>Schedules</h2>
-            <div>
+        <div className="dashboard-container">
+            <div className="navbar">
+                <h2 className="navbar-heading">Schedules</h2>
+                <div className="navbar-buttons">
+                    <Link to="./AddSchedule" className="navbar-button">
+                        Add Schedule
+                    </Link>
+                    <button className="logout-navbar-button" onClick={handleLogout}>Logout</button>
+                </div>
+            </div>
+            <div className="schedule-container">
                 {daysOfWeek.map(day => (
-                    <button key={day} onClick={() => handleDayClick(day)}>
+                    <button className={`day-button ${selectedDay === day ? 'active' : ''}`} key={day} onClick={() => handleDayClick(day)}>
                         {day}
                     </button>
                 ))}
             </div>
             <h3>{selectedDay}</h3>
-            <ul>
-                {schedules.length > 0 ? schedules.map((schedule, index) => (
-                    <li key={index}>
-                        {schedule.name} ({schedule.start_time} - {schedule.end_time})   
-                        <button onClick={() => handleDeleteClick(schedule)}>Delete</button>
-                    </li>
-                )) : (
-                    <li></li>
-                )}
-            </ul>
-            <Link to="./AddSchedule">
-                <button>Add Schedule</button>
-            </Link>
-            <button onClick={handleLogout}>Logout</button>
+            {schedules.length > 0 && (
+                <ul className="schedule-list">
+                    {schedules.map((schedule, index) => (
+                        <li key={index} className="schedule-item">
+                            {schedule.name} ({schedule.start_time} - {schedule.end_time})
+                            <button className="delete-button" onClick={() => handleDeleteClick(schedule)}>Delete</button>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
 
 export default Dashboard;
+
+
+
 
 

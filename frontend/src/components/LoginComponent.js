@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-//import Protectedroute from './ProtectedRouteComponent';
 import { useNavigate } from 'react-router-dom';
+import '../styles/LoginComponent.css'; // Ensure this path is correct
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -9,12 +9,10 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Send login request to backend
-                // Print API URL for verification
-                console.log(process.env.API_URL);
+        console.log(process.env.API_URL);
 
         try {
-            const response = await fetch('http://localhost:3001/login', { // Update URL here
+            const response = await fetch('http://localhost:3001/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,7 +23,6 @@ const Login = () => {
             if (response.ok) {
                 alert(data.message);
                 localStorage.setItem('token', data.token);
-                
                 navigate('/dashboard');
             } else {
                 alert(data.error);
@@ -34,23 +31,37 @@ const Login = () => {
             console.error('Error:', error);
         }
     };
-    const handleregister=()=>{
+
+    const handleregister = () => {
         navigate('/register');
     };
 
     return (
-        <div>
+        <div className="login-container">
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
                 <button type="submit">Login</button>
-                <button type="button" onClick={handleregister}>Newuser?</button>
+                <button type="button" onClick={handleregister}>New user?</button>
             </form>
+            <img
+                src="https://webs.prgr.in/packs/media/images/s_illus_location-13ad654ddd97d993bfa6b78f1dc70c7b.svg"
+                alt="Location Illustration"
+                className="location-img"
+            />
         </div>
     );
 };
 
 export default Login;
-
-

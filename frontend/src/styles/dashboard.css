@@ -1,0 +1,69 @@
+/* Dashboard.css */
+
+@import './navbar.css';
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 100px auto 0; /* Adjust margin-top to account for fixed navbar */
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-container {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.day-button {
+    background-color: transparent;
+    border: 2px solid #87CEFA;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px;
+    padding: 10px 20px;
+    color: #333;
+}
+
+.day-button.active {
+    background-color: #87CEFA;
+    color: white;
+}
+
+.schedule-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.schedule-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 2px solid #87CEFA;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+}
+
+.delete-button {
+    padding: 5px 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+}

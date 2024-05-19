@@ -1,0 +1,98 @@
+/* AddSchedule.css */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Calibri, sans-serif;
+}
+
+@import './navbar.css';
+
+.dashboard-container {
+    max-width: 600px;
+    margin: 80px auto 0; /* Adjust margin-top to account for fixed navbar */
+    padding: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-box {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.days-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    flex-wrap: nowrap;
+}
+
+.day-button {
+    background-color: white;
+    border: 2px solid lightblue;
+    border-radius: 20px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    font-family: Calibri, sans-serif;
+    margin: 2px;
+    flex: 2;
+    max-width: calc(17% - 5px);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.day-button.active {
+    background-color: lightblue;
+    color: white;
+}
+
+.form-group-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.time-box {
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.action-button {
+    background-color: #0084ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: Calibri, sans-serif;
+    font-weight: bold;
+    margin: 5px 10px;
+}
+
+.action-button:hover {
+    background-color: #007ab3;
+}
