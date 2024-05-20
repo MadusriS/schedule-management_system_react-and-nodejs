@@ -38,6 +38,13 @@ const Login = () => {
 
     return (
         <div className="login-container">
+            <nav className="navbar">
+                <img
+                    src="https://i.pcmag.com/imagery/reviews/07MJqoGL3dKLVxhWIJqfhZm-28.fit_lim.size_1050x591.v1664811718.jpg"
+                    alt="Mobicip Logo"
+                    className="navbar-logo"
+                />
+            </nav>
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <input
